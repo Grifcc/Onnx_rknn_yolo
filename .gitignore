@@ -1,0 +1,9 @@
+.vscode
+.ori
+model
+runs*
+VisDrone2019-DET-val*
+instances_val2017*
+debug.py
+nohup.out
+__pycache__
