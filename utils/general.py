@@ -149,6 +149,16 @@ def yolov5_post_process(input, Order, anchors_name, imgz,nc,conf_thres=0.45, iou
         z.append(np.reshape(x, (1, -1, 5+nc)))
 
     pred = torch.from_numpy(np.concatenate(z, axis=1))
+
+    # #dump txt befor nms
+    # with open("bbox.txt","w",encoding="utf-8") as f:
+    #     for i in z:
+    #         for j in i[0]:
+    #             if j[4]>=conf_thres:
+    #                 probs=j[4:]
+    #                 id=np.argmax(probs)-1
+    #                 f.write("{:.3f} {:.3f} {:.3f} {:.3f} {:.6f} {}\n".format(j[0],j[1],j[2],j[3],j[4],id))
+
     pred = non_max_suppression(pred, conf_thres, iou_thres,maxdets,maxbboxs)[0].numpy()
 
     boxes = pred[:, :4]
