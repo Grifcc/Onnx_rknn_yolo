@@ -16,6 +16,7 @@ if __name__ == '__main__':
     # Model
     parser.add_argument('-i', '--input_onnx', required=True, type=str, help='Input onnx model')
     parser.add_argument('-o', '--output_rknn', type=str, default='rknn', help='Save rknn model path')
+    parser.add_argument('--rknn', type=str, default=None, help='Input  rknn model')
 
     # Device
     parser.add_argument('--platform', type=str, default='rk3588', choices=['rk3588', 'rk3566'], help='Set target platform, e.g. rk3588, rk3566')
@@ -62,35 +63,42 @@ if __name__ == '__main__':
 
         # Load onnx model
         print('--> Loading model')
-        ret = rknn.load_onnx(model=opt.input_onnx)
-        if ret != 0:
-            print('Load model failed!')
-            exit(ret)
-        print('done')
-
-        # Build model
-        print('--> Building model')
-        ret = rknn.build(do_quantization=opt.qnt, dataset=dataset)
-        if ret != 0:
-            print('Build model failed!')
-            exit(ret)
-        print('done')
-
-        if opt.build:
-            # Export RKNN model
-            check_path(opt.output_rknn)
-            filename = opt.input_onnx.split("/")[-1].replace("onnx", "rknn")
-            output_dir = os.path.join(opt.output_rknn, filename)
-            print('--> Export rknn model')
-            ret = rknn.export_rknn(output_dir)
+        if opt.rknn != None:
+            ret=rknn.load_rknn(opt.rknn)
             if ret != 0:
-                print('Export rknn model failed!')
+                print('Load model failed!')
+                exit(ret)
+            print('done')
+        else:
+            ret = rknn.load_onnx(model=opt.input_onnx)
+            if ret != 0:
+                print('Load model failed!')
                 exit(ret)
             print('done')
 
+            # Build model
+            print('--> Building model')
+            ret = rknn.build(do_quantization=opt.qnt, dataset=dataset)
+            if ret != 0:
+                print('Build model failed!')
+                exit(ret)
+            print('done')
+
+            if opt.build:
+                # Export RKNN model
+                check_path(opt.output_rknn)
+                filename = opt.input_onnx.split("/")[-1].replace("onnx", "rknn")
+                output_dir = os.path.join(opt.output_rknn, filename)
+                print('--> Export rknn model')
+                ret = rknn.export_rknn(output_dir)
+                if ret != 0:
+                    print('Export rknn model failed!')
+                    exit(ret)
+                print('done')
+
         # Init runtime environment
         print('--> Init runtime environment')
-        if opt.sim:
+        if opt.sim and opt.rknn !=None:
             TARTGET = None
         else:
             TARTGET = opt.platform
@@ -148,7 +156,7 @@ if __name__ == '__main__':
                 img1 = cv2.cvtColor(img0, cv2.COLOR_BGR2RGB)
                 img1, pad_par = pad_img(img1)
                 img1, gain = scale_img(img1, opt.imgz)
-                if opt.sim:
+                if opt.sim and opt.rnn !=None:
                     img1 = img1.reshape(1, opt.imgz, opt.imgz, 3)
                 outputs = rknn.inference(inputs=[img1])
 
