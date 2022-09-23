@@ -25,14 +25,14 @@ if __name__ == '__main__':
     parser.add_argument('--imgz', type=int, default=640, help='Model input img size')
     parser.add_argument('--conf_thres', type=float, default=0.001, help='object confidence threshold')
     parser.add_argument('--iou_thres', type=float, default=0.65, help='IOU threshold for NMS')
-    parser.add_argument('--maxdets', type=int, default=300, help='maximum number of detections per image')
+    parser.add_argument('--maxdets', type=int, default=100, help='maximum number of detections per image')
     parser.add_argument('--maxbboxs', type=int, default=1024, help='maximum number of boxes into torchvision.ops.nms()')
 
     # Mode
     parser.add_argument('--qnt_algo', type=str, default='normal', choices=['normal', 'mmse'], help='quantized_algorithm: currently support: normal, mmse (Min Mean Square Error).')
     parser.add_argument('--qnt_meth', type=str, default='channel', choices=['layer', 'channel'], help='quantized_method: quantize method, currently support: layer, channel.')
     parser.add_argument('--build', action='store_true', help='Export rknn model (default = disabled)')
-    parser.add_argument('--buildOnly', action='store_true', help='Exit after the rknn model has been built and skip inference perf measurement (default = disabled)')
+    # parser.add_argument('--buildOnly', action='store_true', help='Exit after the rknn model has been built and skip inference perf measurement (default = disabled)')
     parser.add_argument('--sim', action='store_true', help='Simulate execution on PC')
     parser.add_argument('--qnt', action='store_true', help='do_quantization or not')
     parser.add_argument('--eval_perf', action='store_true',help='Evalate performance of rknn model')
@@ -87,9 +87,6 @@ if __name__ == '__main__':
                 print('Export rknn model failed!')
                 exit(ret)
             print('done')
-
-        if opt.buildOnly:
-            exit(0)
 
         # Init runtime environment
         print('--> Init runtime environment')
